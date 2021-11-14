@@ -115,18 +115,110 @@ public:
       cout << postfix[i];
   }
 };
+class Evaluation //Evaluation class provides methods for evaluating postfix expression
+{
+public:
+  int top_eval = -1; //Creating integer stack for evaluation
 
+  int eval[100];         //stack to store evaluated values
+  void push(int element) //pushes element in eval[]
+  {
+    if (!isFull())
+      eval[++top_eval] = element;
+  }
+  void pop() //pops top element from eval[]
+  {
+    if (isEmpty())
+      return;
+    else
+      top_eval--;
+  }
+  bool isEmpty() //if top_eval is less than 0
+  {
+    return top_eval <= -1;
+  }
+  bool isFull() //for full array having size 100
+  {
+    return top_eval - 1 == 100;
+  }
+  void clear() //clears all the elements in stack
+  {
+    while (top_eval != -1)
+      pop();
+  }
+  int peek() //returns top element in stack i.e. eval[]
+  {
+    return eval[top_eval];
+  }
+
+  int evaluation(char array[100]) //evaluates postfix i.e. array[] and returns integer value
+  {
+    for (int i = 0; array[i]; ++i) //assesses all indexes of the array
+    {
+      if (array[i] == ' ') //incase of space, for loop will move to next iteration, space indicates a separation
+        continue;
+
+      else if (isdigit(array[i])) //for digits
+      {
+        int n = 0; //initially n (number to be pushed in int stack) is 0
+
+        //extract full number
+        while (isdigit(array[i]))
+        {
+          n = n * 10 + (int)(array[i] - '0'); //for multi digit number while loop will have another iteration
+          array[i] = ' ';
+          i++; //for checking next index
+        }
+        i--;
+
+        push(n); //push the number in the eval[] stack
+      }
+      else //incase of operators
+      {
+        int val2 = peek(); //top element will be stored in variable val 2
+        pop();             //removed from the stack
+        int val1 = peek(); //new top  element will be stored in variable val 1
+        pop();             //top element will be removed
+
+        switch (array[i]) //evaluates the operator
+        {
+        case '+':
+          push(val1 + val2); //for + , sum will be pushed in eval stack
+          break;
+        case '-':
+          push(val1 - val2); //for - , difference will be pushed in eval stack
+          break;
+        case '*':
+          push(val1 * val2); //for * , product will be pushed in eval stack
+          break;
+        case '/':
+          push(val1 / val2); //for / , division result will be pushed in eval stack
+          break;
+        case '^':
+          push(pow(val1, val2)); //for ^ , exponential result will be pushed in eval stack
+          break;
+        }
+      }
+    }
+    return peek(); //Returns the only element left in eval[] stack.
+    pop();
+  }
+};
 int main()
 {
 
   Stack postfix_obj; //creating object of Stack Class
- 
-  cout << "Given Infix Expression: ((7 - 5 )^(7 + 1 ))";
+  Evaluation eval;   //creating object of Evaluation Class
+   cout << "Given Infix Expression: ((7 - 5 )^(7 + 1 ))";
+  
   postfix_obj.conversion("((7 - 5 )^(7 + 1 ))");
   //Given expression must have spaces (in case of brackets, spaces are not required) after each operator and operand.
   //Conversion Method converts infix to postfix
   //Stores the postfix expression in postfix array
   cout << "\nConverted Infix to Postfix Expression: ";
   postfix_obj.show(); //displays the postfix expression
+  cout << "\nEvaluation: "
 
-  }
+       << eval.evaluation(postfix_obj.postfix); //Evaluates any postfix expression.
+                                                //In this case, the postfix converted expression is passed directly.
+}
